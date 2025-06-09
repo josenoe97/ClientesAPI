@@ -11,15 +11,5 @@ namespace ClientesAPI.Domain.Entities
         public string Telefone { get; set; }
         public Endereco Endereco { get; set; }
     }
-
-    public class Endereco
-    {
-        public string Rua { get; set; }
-        public string Numero { get; set; }
-        public string Cidade { get; set; }
-        public string Estado { get; set; }
-        public string CEP { get; set; }
-    }
-
 }
 
