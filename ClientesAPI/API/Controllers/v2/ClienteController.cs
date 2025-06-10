@@ -25,7 +25,11 @@ namespace ClientesAPI.API.Controllers.v2
         /// Retorna a lista de todos os clientes.
         /// </summary>
         /// <returns>Lista de clientes.</returns>
+        /// <response code ="200">Retorna os clientes cadastrados</response>
+        /// <response code ="204">Nenhum cliente encotrado</response>
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public ActionResult<IEnumerable<ClienteDTO>> GetClientes()
         {
             _logger.LogInformation("Recebida requisição GET para listar todos os clientes.");
@@ -49,7 +53,32 @@ namespace ClientesAPI.API.Controllers.v2
         /// </summary>
         /// <param name="id">ID do cliente.</param>
         /// <returns>Cliente encontrado.</returns>
+        /// <remarks>
+        /// Exemplo de requisição:
+        /// 
+        ///     GET /api/v2/cliente/12345678-1234-1234-1234-123456789012
+        ///     
+        /// Exemplo de resposta:
+        /// 
+        ///     {
+        ///        "id": "12345678-1234-1234-1234-123456789012",
+        ///        "nome": "João Mockado",
+        ///        "email": "joao.mockado@example.com",
+        ///        "telefone": "999-9999",
+        ///        "endereco": {
+        ///           "cep": "21344-050",
+        ///           "cidade": "Rio de Janeiro",
+        ///           "estado": "RJ",
+        ///           "numero": "381",
+        ///           "rua": "Rua Alberto Freire"
+        ///        }
+        ///     }
+        /// </remarks>
+        /// <response code ="200">Retorna o cliente encontrado</response>
+        /// <response code ="204">Cliente não encontrado</response>
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public ActionResult<ClienteDTO> GetCliente(Guid id)
         {
             _logger.LogInformation("Recebida requisição GET para cliente com ID {Id}.", id);
@@ -75,7 +104,29 @@ namespace ClientesAPI.API.Controllers.v2
         /// </summary>
         /// <param name="clienteDto">Objeto cliente.</param>
         /// <returns>Cliente criado.</returns>
+        /// <remarks>
+        /// Exemplo de requisição:
+        /// 
+        ///     POST
+        ///     {
+        ///        "id": "12345678-1234-1234-1234-123456789012",
+        ///        "nome": "João Atualizado",
+        ///        "email": "joao.atualizado@example.com",
+        ///        "telefone": "999-1111",
+        ///        "endereco": {
+        ///           "cep": "21344-050",
+        ///           "cidade": "Rio de Janeiro",
+        ///           "estado": "RJ",
+        ///           "numero": "381",
+        ///           "rua": "Rua Alberto Freire"
+        ///        }
+        ///     }
+        /// </remarks>
+        /// <response code ="201">Cliente enviado com sucesso</response>
+        /// <response code ="400">Dados inválidos enviados</response>
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public ActionResult<ClienteDTO> CreateCliente([FromBody] ClienteDTO clienteDto)
         {
             _logger.LogInformation("Recebida requisição POST para cliente");
@@ -94,12 +145,36 @@ namespace ClientesAPI.API.Controllers.v2
         }
 
         /// <summary>
-        /// Atualiza um cliente existente.
+        /// Atualiza um cliente existente pelo ID.
         /// </summary>
         /// <param name="id">ID do cliente.</param>
         /// <param name="cliente">Dados atualizados do cliente.</param>
-        /// <returns>Resultado da operação.</returns>
+        /// <returns>Confirmação de atualização.</returns>
+        /// <remarks>
+        /// Exemplo de requisição:
+        /// 
+        ///     PUT /api/v2/cliente/12345678-1234-1234-1234-123456789012
+        ///     {
+        ///        "id": "12345678-1234-1234-1234-123456789012",
+        ///        "nome": "João Atualizado",
+        ///        "email": "joao.atualizado@example.com",
+        ///        "telefone": "999-1111",
+        ///        "endereco": {
+        ///           "cep": "21344-050",
+        ///           "cidade": "Rio de Janeiro",
+        ///           "estado": "RJ",
+        ///           "numero": "381",
+        ///           "rua": "Rua Alberto Freire"
+        ///        }
+        ///     }
+        /// </remarks>
+        /// <response code="204">Cliente atualizado com sucesso</response>
+        /// <response code="400">Dados inválidos ou ID inconsistente</response>
+        /// <response code="404">Cliente não encontrado</response>
         [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult UpdateCliente(Guid id, [FromBody] ClienteDTO clienteDto)
         {
             _logger.LogInformation("Recebida requisição PUT para cliente");
@@ -129,7 +204,17 @@ namespace ClientesAPI.API.Controllers.v2
         /// </summary>
         /// <param name="id">ID do cliente.</param>
         /// <returns>Resultado da operação.</returns>
+        /// <remarks>
+        /// Exemplo de requisição:
+        /// 
+        ///     DELETE /api/v2/cliente/12345678-1234-1234-1234-123456789012
+        ///
+        /// </remarks>
+        /// <response code ="204">Cliente removido com sucesso</response>
+        /// <response code ="400">Cliente não encontrado</response>
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult DeleteCliente(Guid id)
         {
             _logger.LogInformation("Recebida requisição DELETE para cliente ID {Id}", id);

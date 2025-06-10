@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Reflection;
 
 namespace ClientesAPI.API.Configuration
 {
@@ -19,6 +20,13 @@ namespace ClientesAPI.API.Configuration
             foreach (var description in _apiVersionDescriptionProvider.ApiVersionDescriptions)
             {
                 options.SwaggerDoc(description.GroupName, CreateOptenApiInfo(description));
+            }
+
+            var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+            var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+            if (File.Exists(xmlPath))
+            {
+                options.IncludeXmlComments(xmlPath);
             }
         }
 
