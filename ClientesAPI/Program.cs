@@ -1,13 +1,12 @@
 using Asp.Versioning.ApiExplorer;
 using ClientesAPI.API.Configuration;
+using ClientesAPI.Application.Map;
 using ClientesAPI.Domain.Interface;
 using ClientesAPI.Infrastructure.Data;
 using ClientesAPI.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -16,6 +15,8 @@ builder.Services.AddSwaggerGen(x =>
 {
     x.OperationFilter<SwaggerDefaultValues>();
 });
+
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 builder.Services.AddDbContext<ClienteContext>(options =>
     options.UseInMemoryDatabase("ClientesDb"));

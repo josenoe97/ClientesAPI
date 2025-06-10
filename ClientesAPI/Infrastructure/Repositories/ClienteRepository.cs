@@ -14,44 +14,39 @@ namespace ClientesAPI.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<Cliente> AddAsync(Cliente cliente)
+        public Cliente Add(Cliente cliente)
         {
-            await _context.Clientes.AddAsync(cliente);
-            await _context.SaveChangesAsync();
+            _context.Clientes.Add(cliente);
+            _context.SaveChanges();
 
             return cliente;
         }
 
-        public async Task<Cliente> DeleteAsync(Guid id)
+        public Cliente Delete(Cliente cliente)
         {
-            var cliente = await _context.Clientes.FirstOrDefaultAsync(x => x.Id == id);
-
-            if (cliente != null)
-            {
-                _context.Clientes.Remove(cliente);
-                await _context.SaveChangesAsync(); 
-            }
+            _context.Clientes.Remove(cliente);
+            _context.SaveChanges();
 
             return cliente;
         }
 
-        public async Task<List<Cliente>> GetAllAsync()
+        public List<Cliente> GetAll()
         {
-            return await _context.Clientes.ToListAsync();
+            return _context.Clientes.ToList();
         }
 
-        public async Task<Cliente> GetByIdAsync(Guid id)
+        public Cliente GetById(Guid id)
         {
-            var cliente = await _context.Clientes.FirstOrDefaultAsync(x => x.Id == id);
+            var cliente = _context.Clientes.FirstOrDefault(x => x.Id == id);
 
             return cliente;
         }
 
-        public async Task<Cliente> UpdateAsync(Cliente cliente)
+        public Cliente Update(Cliente cliente)
         {
             _context.Update(cliente);
             _context.SaveChanges();
-            return await GetByIdAsync(cliente.Id);
+            return GetById(cliente.Id);
         }
     }
 }
