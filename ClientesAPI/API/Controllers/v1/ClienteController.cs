@@ -13,9 +13,12 @@ namespace ClientesAPI.API.Controllers.v1
     {
         private readonly IClienteService _clienteService;
 
-        public ClienteController(IClienteService clienteService)
+        private readonly ILogger<ClienteController> _logger;
+
+        public ClienteController(IClienteService clienteService, ILogger<ClienteController> logger)
         {
             _clienteService = clienteService;
+            _logger = logger;
         }
 
         /// <summary>
@@ -25,15 +28,18 @@ namespace ClientesAPI.API.Controllers.v1
         [HttpGet]
         public ActionResult<IEnumerable<ClienteDTO>> GetClientes()
         {
+            _logger.LogInformation("Recebida requisição GET para listar todos os clientes.");
+
             try
             {
                 var clientes = _clienteService.GetAll();
-                if (!clientes.Any()) return NoContent(); // Retorna 204 se não houver clientes
+                if (!clientes.Any()) return NoContent();
 
                 return Ok(clientes);
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Erro ao obter a lista de clientes.");
                 return StatusCode(500, $"Erro interno: {ex.Message}");
             }
         }
@@ -46,17 +52,20 @@ namespace ClientesAPI.API.Controllers.v1
         [HttpGet("{id}")]
         public ActionResult<ClienteDTO> GetCliente(Guid id)
         {
+            _logger.LogInformation("Recebida requisição GET para cliente com ID {Id}.", id);
+
             try
             {
                 if (id == Guid.Empty) return BadRequest("ID inválido.");
 
                 var clienteDto = _clienteService.GetById(id);
                 if (clienteDto == null) return NotFound("Cliente não encontrado.");
-
+                
                 return Ok(clienteDto);
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Erro ao obter a cliente por ID {Id}.", id);
                 return StatusCode(500, $"Erro interno: {ex.Message}");
             }
         }
@@ -69,6 +78,7 @@ namespace ClientesAPI.API.Controllers.v1
         [HttpPost]
         public ActionResult<ClienteDTO> CreateCliente([FromBody] ClienteDTO clienteDto)
         {
+            _logger.LogInformation("Recebida requisição POST para cliente");
             try
             {
                 if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -78,6 +88,7 @@ namespace ClientesAPI.API.Controllers.v1
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex,"Erro ao tentar cadastrar cliente");
                 return StatusCode(500, $"Erro interno: {ex.Message}");
             }
         }
@@ -91,25 +102,23 @@ namespace ClientesAPI.API.Controllers.v1
         [HttpPut("{id}")]
         public IActionResult UpdateCliente(Guid id, [FromBody] ClienteDTO clienteDto)
         {
+            _logger.LogInformation("Recebida requisição PUT para cliente");
+
             try
             {
                 if (!ModelState.IsValid) return BadRequest(ModelState);
 
-                // Busca o cliente original no banco
                 var clienteExistente = _clienteService.GetById(id);
                 if (clienteExistente == null) return NotFound("Cliente não encontrado.");
-
-                // Verifica se o ID do objeto foi alterado
-                if (clienteExistente.Id != clienteDto.Id)
-                {
-                    return BadRequest("O ID do cliente não pode ser alterado.");
-                }
+                
+                if (clienteExistente.Id != clienteDto.Id) return BadRequest("O ID do cliente não pode ser alterado.");
 
                 _clienteService.Update(id, clienteDto);
                 return NoContent();
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Erro ao tentar atualizar cliente.");
                 return StatusCode(500, $"Erro interno: {ex.Message}");
             }
         }
@@ -123,6 +132,8 @@ namespace ClientesAPI.API.Controllers.v1
         [HttpDelete("{id}")]
         public IActionResult DeleteCliente(Guid id)
         {
+            _logger.LogInformation("Recebida requisição DELETE para cliente ID {Id}", id);
+
             try
             {
                 if (id == Guid.Empty) return BadRequest("ID inválido.");
@@ -136,6 +147,7 @@ namespace ClientesAPI.API.Controllers.v1
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Erro ao deletar o cliente por ID {Id}.", id);
                 return StatusCode(500, $"Erro interno: {ex.Message}");
             }
         }
