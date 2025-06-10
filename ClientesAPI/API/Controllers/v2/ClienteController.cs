@@ -1,4 +1,5 @@
-﻿using ClientesAPI.Domain.Entities;
+﻿using Asp.Versioning;
+using ClientesAPI.Domain.Entities;
 using ClientesAPI.Infrastructure.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -6,7 +7,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ClientesAPI.API.Controllers
 {
-    [Route("api/[controller]")]
+    [ApiVersion("2.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
     public class ClienteController : ControllerBase
     {
