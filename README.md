@@ -3,6 +3,7 @@ Requisitos:
   - git
     
 Como rodar a aplicação:
+
   1° - Aplicar o comando "git clone https://github.com/josenoe97/ClientesAPI.git"
   
   2° - Acessar o a pasta que deseja compilar (ClientesAPI ou ClientesAPI.Testes)
