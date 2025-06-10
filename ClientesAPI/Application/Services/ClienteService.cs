@@ -3,9 +3,6 @@ using ClientesAPI.Application.DTOs;
 using ClientesAPI.Application.Services.Interface;
 using ClientesAPI.Domain.Entities;
 using ClientesAPI.Domain.Interface;
-using ClientesAPI.Infrastructure.Repositories;
-using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
 
 namespace ClientesAPI.Application.Services
 {
@@ -22,34 +19,34 @@ namespace ClientesAPI.Application.Services
             _logger = logger;
         }
 
-        public ClienteDTO Create(ClienteDTO dto)
+        public async Task<ClienteDTO> CreateAsync(ClienteDTO dto)
         {
-            _logger.LogInformation("Acessando o método Create no ClienteService.");
+            _logger.LogInformation("Acessando o método CreateAsync no ClienteService.");
 
             try
             {
                 var cliente = _mapper.Map<Cliente>(dto);
+                await _clienteRepository.AddAsync(cliente);
 
-                _clienteRepository.Add(cliente);
-
-                return GetById(cliente.Id);
+                return await GetByIdAsync(cliente.Id);
             }
-            catch (Exception) 
+            catch (Exception)
             {
                 _logger.LogError("Falha ao criar cliente no ClienteService.");
                 throw;
             }
         }
 
-        public ClienteDTO Delete(Guid id)
+        public async Task<ClienteDTO> DeleteAsync(Guid id)
         {
-            _logger.LogInformation("Acessando o método Create no ClienteService.");
+            _logger.LogInformation("Acessando o método DeleteAsync no ClienteService.");
 
             try
             {
-                var cliente = _clienteRepository.GetById(id);
+                var cliente = await _clienteRepository.GetByIdAsync(id);
+                if (cliente == null) throw new Exception("Cliente não encontrado.");
 
-                _clienteRepository.Delete(cliente);
+                await _clienteRepository.DeleteAsync(cliente);
 
                 return _mapper.Map<ClienteDTO>(cliente);
             }
@@ -60,15 +57,14 @@ namespace ClientesAPI.Application.Services
             }
         }
 
-        public List<ClienteDTO> GetAll()
+        public async Task<List<ClienteDTO>> GetAllAsync()
         {
-            _logger.LogInformation("Acessando o método GetAll no ClienteService.");
+            _logger.LogInformation("Acessando o método GetAllAsync no ClienteService.");
 
             try
             {
-                var clientesDTO = _clienteRepository.GetAll().Select(x => _mapper.Map<ClienteDTO>(x));
-
-                return clientesDTO.ToList();
+                var clientes = await _clienteRepository.GetAllAsync();
+                return clientes.Select(c => _mapper.Map<ClienteDTO>(c)).ToList();
             }
             catch (Exception)
             {
@@ -77,14 +73,13 @@ namespace ClientesAPI.Application.Services
             }
         }
 
-        public ClienteDTO GetById(Guid id)
+        public async Task<ClienteDTO> GetByIdAsync(Guid id)
         {
-            _logger.LogInformation("Acessando o método GetById no ClienteService.");
+            _logger.LogInformation("Acessando o método GetByIdAsync no ClienteService.");
 
             try
             {
-                var cliente = _clienteRepository.GetById(id);
-
+                var cliente = await _clienteRepository.GetByIdAsync(id);
                 return _mapper.Map<ClienteDTO>(cliente);
             }
             catch (Exception)
@@ -94,18 +89,16 @@ namespace ClientesAPI.Application.Services
             }
         }
 
-
-        public ClienteDTO Update(Guid id, ClienteDTO dto)
+        public async Task<ClienteDTO> UpdateAsync(Guid id, ClienteDTO dto)
         {
-            _logger.LogInformation("Acessando o método Update no ClienteService.");
+            _logger.LogInformation("Acessando o método UpdateAsync no ClienteService.");
 
             try
             {
                 var cliente = _mapper.Map<Cliente>(dto);
+                await _clienteRepository.UpdateAsync(cliente);
 
-                _clienteRepository.Update(cliente);
-
-                return GetById(cliente.Id);
+                return await GetByIdAsync(cliente.Id);
             }
             catch (Exception)
             {

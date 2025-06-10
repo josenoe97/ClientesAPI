@@ -6,14 +6,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 
-
 namespace ClientesAPI.Testes.Testes
 {
-    public class ClienteControllerV1Teste // teste de versão controle v1
+    public class ClienteControllerV1Teste
     {
         private readonly API.Controllers.v1.ClienteController _controller;
-        private readonly Mock<IClienteService> _clienteServiceMock = new(); // Moq - simular processos do service
-        private readonly Mock<ILogger<API.Controllers.v1.ClienteController>> _loggerMock = new(); // Moq
+        private readonly Mock<IClienteService> _clienteServiceMock = new();
+        private readonly Mock<ILogger<API.Controllers.v1.ClienteController>> _loggerMock = new();
 
         public ClienteControllerV1Teste()
         {
@@ -21,33 +20,33 @@ namespace ClientesAPI.Testes.Testes
         }
 
         [Fact]
-        public void GetClientesDeveRetornarOkQuandoExistemClientes() //GET
+        public async Task GetClientesDeveRetornarOkQuandoExistemClientes()
         {
             // Arrange
             var mockClientes = ClienteMock.GetMockCliente();
-            _clienteServiceMock.Setup(y => y.GetAll()).Returns(mockClientes);
+            _clienteServiceMock.Setup(s => s.GetAllAsync()).ReturnsAsync(mockClientes);
 
             // Act
-            var result = _controller.GetClientes();
+            var result = await _controller.GetClientes();
 
             // Assert
             var okResult = result.Result as OkObjectResult;
             okResult.Should().NotBeNull();
-            okResult!.StatusCode.Should().Be(200); // verifica se o statuscode retorno é um 200 OK // FluentAssertion
+            okResult!.StatusCode.Should().Be(200);
 
             var clientes = okResult.Value as IEnumerable<ClienteDTO>;
-            clientes.Should().HaveCount(3); // => vai retorna apenas 3, por que é a quantidade de registros que tem no mock
+            clientes.Should().HaveCount(3);
         }
 
         [Fact]
-        public void GetClienteDeveRetornarClienteQuandoExistir() // GET({ID})
+        public async Task GetClienteDeveRetornarClienteQuandoExistir()
         {
             // Arrange
             var mockCliente = ClienteMock.GetMockCliente().First();
-            _clienteServiceMock.Setup(x => x.GetById(mockCliente.Id)).Returns(mockCliente);
+            _clienteServiceMock.Setup(x => x.GetByIdAsync(mockCliente.Id)).ReturnsAsync(mockCliente);
 
             // Act
-            var resultado = _controller.GetCliente(mockCliente.Id);
+            var resultado = await _controller.GetCliente(mockCliente.Id);
 
             // Assert
             var okResult = resultado.Result as OkObjectResult;
@@ -56,19 +55,19 @@ namespace ClientesAPI.Testes.Testes
 
             var clienteRetornado = okResult.Value as ClienteDTO;
             clienteRetornado.Should().NotBeNull();
-            clienteRetornado!.Id.Should().Be(mockCliente.Id); // ou Assert.Equal(mockCliente.Id, clienteRetornado.Id);
-            clienteRetornado.Nome.Should().Be(mockCliente.Nome); // ou Assert.Equal(mockCliente.Nome, clienteRetornado.Nome);
+            clienteRetornado!.Id.Should().Be(mockCliente.Id);
+            clienteRetornado.Nome.Should().Be(mockCliente.Nome);
         }
 
         [Fact]
-        public void CreateClienteDeveRetornarCreatedQuandoValido() //POST
+        public async Task CreateClienteDeveRetornarCreatedQuandoValido()
         {
             // Arrange
             var newCliente = ClienteMock.GetMockCliente().First();
-            _clienteServiceMock.Setup(x => x.Create(It.IsAny<ClienteDTO>()));
+            _clienteServiceMock.Setup(x => x.CreateAsync(It.IsAny<ClienteDTO>())).ReturnsAsync(newCliente);
 
             // Act
-            var result = _controller.CreateCliente(newCliente); // criando um cliente equivale ao novoCliente
+            var result = await _controller.CreateCliente(newCliente);
 
             // Assert
             var createdResult = result.Result as CreatedAtActionResult;
@@ -78,17 +77,17 @@ namespace ClientesAPI.Testes.Testes
         }
 
         [Fact]
-        public void UpdateClienteDeveRetornarNoContentQuandoClienteExiste() //PUT
+        public async Task UpdateClienteDeveRetornarNoContentQuandoClienteExiste()
         {
             // Arrange
             var clienteExistente = ClienteMock.GetMockCliente().First();
             var id = clienteExistente.Id;
 
-            _clienteServiceMock.Setup(x => x.GetById(id)).Returns(clienteExistente);
-            _clienteServiceMock.Setup(x => x.Update(id, clienteExistente));
+            _clienteServiceMock.Setup(x => x.GetByIdAsync(id)).ReturnsAsync(clienteExistente);
+            _clienteServiceMock.Setup(x => x.UpdateAsync(id, clienteExistente));//.Returns(Task.CompletedTask);
 
             // Act
-            var resultado = _controller.UpdateCliente(id, clienteExistente);
+            var resultado = await _controller.UpdateCliente(id, clienteExistente);
 
             // Assert
             var noContentResult = resultado as NoContentResult;
@@ -97,24 +96,22 @@ namespace ClientesAPI.Testes.Testes
         }
 
         [Fact]
-        public void DeleteClienteDeveRetornarNoContentQuandoClienteExiste() //DELETE
+        public async Task DeleteClienteDeveRetornarNoContentQuandoClienteExiste()
         {
             // Arrange
             var clienteExist = ClienteMock.GetMockCliente().First();
-            var id = clienteExist.Id; // id que vai ser deletado
+            var id = clienteExist.Id;
 
-            _clienteServiceMock.Setup(s => s.GetById(id)).Returns(clienteExist);
-            _clienteServiceMock.Setup(s => s.Delete(id));
+            _clienteServiceMock.Setup(s => s.GetByIdAsync(id)).ReturnsAsync(clienteExist);
+            _clienteServiceMock.Setup(s => s.DeleteAsync(id));//.Returns(Task.CompletedTask);
 
             // Act
-            var resultado = _controller.DeleteCliente(id);
+            var resultado = await _controller.DeleteCliente(id);
 
             // Assert
             var noContentResult = resultado as NoContentResult;
             noContentResult.Should().NotBeNull();
             noContentResult!.StatusCode.Should().Be(204);
         }
-
-
     }
 }

@@ -5,10 +5,10 @@ namespace ClientesAPI.Application.Services.Interface
 {
     public interface IClienteService
     {
-        List<ClienteDTO> GetAll();
-        ClienteDTO GetById(Guid id);
-        ClienteDTO Create(ClienteDTO dto);
-        ClienteDTO Update(Guid id, ClienteDTO dto);
-        ClienteDTO Delete(Guid id);
+        Task<List<ClienteDTO>> GetAllAsync();
+        Task<ClienteDTO> GetByIdAsync(Guid id);
+        Task<ClienteDTO> CreateAsync(ClienteDTO dto);
+        Task<ClienteDTO> UpdateAsync(Guid id, ClienteDTO dto);
+        Task<ClienteDTO> DeleteAsync(Guid id);
     }
 }

@@ -16,32 +16,32 @@ namespace ClientesAPI.Infrastructure.Repositories
             _logger = logger;
         }
 
-        public Cliente Add(Cliente cliente)
+        public async Task<Cliente> AddAsync(Cliente cliente)
         {
-            _logger.LogInformation("Acessando o método Add no repositório");
-            
+            _logger.LogInformation("Acessando o método AddAsync no repositório");
+
             try
             {
-                _context.Clientes.Add(cliente);
-                _context.SaveChanges();
+                await _context.Clientes.AddAsync(cliente);
+                await _context.SaveChangesAsync();
 
                 return cliente;
             }
             catch (Exception)
             {
-                _logger.LogError("Falha ao obter clientes no repositório.");
+                _logger.LogError("Falha ao adicionar cliente no repositório.");
                 throw;
             }
         }
 
-        public Cliente Delete(Cliente cliente)
+        public async Task<Cliente> DeleteAsync(Cliente cliente)
         {
-            _logger.LogInformation("Acessando o método Delete no repositório");
+            _logger.LogInformation("Acessando o método DeleteAsync no repositório");
 
             try
             {
                 _context.Clientes.Remove(cliente);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
 
                 return cliente;
             }
@@ -52,13 +52,13 @@ namespace ClientesAPI.Infrastructure.Repositories
             }
         }
 
-        public List<Cliente> GetAll()
+        public async Task<List<Cliente>> GetAllAsync()
         {
-            _logger.LogInformation("Acessando o método GetAll no repositório");
+            _logger.LogInformation("Acessando o método GetAllAsync no repositório");
 
             try
             {
-                return _context.Clientes.ToList();
+                return await _context.Clientes.ToListAsync();
             }
             catch (Exception)
             {
@@ -66,15 +66,13 @@ namespace ClientesAPI.Infrastructure.Repositories
             }
         }
 
-        public Cliente GetById(Guid id)
+        public async Task<Cliente?> GetByIdAsync(Guid id)
         {
-            _logger.LogInformation("Acessando o método GetById no repositório");
+            _logger.LogInformation("Acessando o método GetByIdAsync no repositório");
 
             try
             {
-                var cliente = _context.Clientes.Find(id);
-
-                return cliente;
+                return await _context.Clientes.FindAsync(id);
             }
             catch (Exception)
             {
@@ -83,20 +81,20 @@ namespace ClientesAPI.Infrastructure.Repositories
             }
         }
 
-        public Cliente Update(Cliente cliente)
+        public async Task<Cliente?> UpdateAsync(Cliente cliente)
         {
-            _logger.LogInformation("Acessando o método Update no repositório");
+            _logger.LogInformation("Acessando o método UpdateAsync no repositório");
 
             try
             {
-                var existCliente = GetById(cliente.Id);
+                var existCliente = await GetByIdAsync(cliente.Id);
                 if (existCliente != null)
                 {
                     _context.Entry(existCliente).CurrentValues.SetValues(cliente);
-                    _context.SaveChanges();
+                    await _context.SaveChangesAsync();
                 }
 
-                return GetById(cliente.Id);
+                return await GetByIdAsync(cliente.Id);
             }
             catch (Exception)
             {

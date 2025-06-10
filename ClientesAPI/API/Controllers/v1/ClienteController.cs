@@ -12,7 +12,6 @@ namespace ClientesAPI.API.Controllers.v1
     public class ClienteController : ControllerBase
     {
         private readonly IClienteService _clienteService;
-
         private readonly ILogger<ClienteController> _logger;
 
         public ClienteController(IClienteService clienteService, ILogger<ClienteController> logger)
@@ -26,13 +25,13 @@ namespace ClientesAPI.API.Controllers.v1
         /// </summary>
         /// <returns>Lista de clientes.</returns>
         [HttpGet]
-        public ActionResult<IEnumerable<ClienteDTO>> GetClientes()
+        public async Task<ActionResult<IEnumerable<ClienteDTO>>> GetClientes()
         {
             _logger.LogInformation("Recebida requisição GET para listar todos os clientes.");
 
             try
             {
-                var clientes = _clienteService.GetAll();
+                var clientes = await _clienteService.GetAllAsync();
                 if (!clientes.Any()) return NoContent();
 
                 return Ok(clientes);
@@ -50,7 +49,7 @@ namespace ClientesAPI.API.Controllers.v1
         /// <param name="id">ID do cliente.</param>
         /// <returns>Cliente encontrado.</returns>
         [HttpGet("{id}")]
-        public ActionResult<ClienteDTO> GetCliente(Guid id)
+        public async Task<ActionResult<ClienteDTO>> GetCliente(Guid id)
         {
             _logger.LogInformation("Recebida requisição GET para cliente com ID {Id}.", id);
 
@@ -58,9 +57,9 @@ namespace ClientesAPI.API.Controllers.v1
             {
                 if (id == Guid.Empty) return BadRequest("ID inválido.");
 
-                var clienteDto = _clienteService.GetById(id);
+                var clienteDto = await _clienteService.GetByIdAsync(id);
                 if (clienteDto == null) return NotFound("Cliente não encontrado.");
-                
+
                 return Ok(clienteDto);
             }
             catch (Exception ex)
@@ -76,19 +75,19 @@ namespace ClientesAPI.API.Controllers.v1
         /// <param name="clienteDto">Objeto cliente.</param>
         /// <returns>Cliente criado.</returns>
         [HttpPost]
-        public ActionResult<ClienteDTO> CreateCliente([FromBody] ClienteDTO clienteDto)
+        public async Task<ActionResult<ClienteDTO>> CreateCliente([FromBody] ClienteDTO clienteDto)
         {
             _logger.LogInformation("Recebida requisição POST para cliente");
             try
             {
                 if (!ModelState.IsValid) return BadRequest(ModelState);
 
-                _clienteService.Create(clienteDto);
-                return CreatedAtAction(nameof(GetCliente), new { id = clienteDto.Id }, clienteDto);
+                var clienteCriado = await _clienteService.CreateAsync(clienteDto);
+                return CreatedAtAction(nameof(GetCliente), new { id = clienteCriado.Id }, clienteCriado);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex,"Erro ao tentar cadastrar cliente");
+                _logger.LogError(ex, "Erro ao tentar cadastrar cliente");
                 return StatusCode(500, $"Erro interno: {ex.Message}");
             }
         }
@@ -100,7 +99,7 @@ namespace ClientesAPI.API.Controllers.v1
         /// <param name="cliente">Dados atualizados do cliente.</param>
         /// <returns>Resultado da operação.</returns>
         [HttpPut("{id}")]
-        public IActionResult UpdateCliente(Guid id, [FromBody] ClienteDTO clienteDto)
+        public async Task<IActionResult> UpdateCliente(Guid id, [FromBody] ClienteDTO clienteDto)
         {
             _logger.LogInformation("Recebida requisição PUT para cliente");
 
@@ -108,12 +107,12 @@ namespace ClientesAPI.API.Controllers.v1
             {
                 if (!ModelState.IsValid) return BadRequest(ModelState);
 
-                var clienteExistente = _clienteService.GetById(id);
+                var clienteExistente = await _clienteService.GetByIdAsync(id);
                 if (clienteExistente == null) return NotFound("Cliente não encontrado.");
-                
+
                 if (clienteExistente.Id != clienteDto.Id) return BadRequest("O ID do cliente não pode ser alterado.");
 
-                _clienteService.Update(id, clienteDto);
+                await _clienteService.UpdateAsync(id, clienteDto);
                 return NoContent();
             }
             catch (Exception ex)
@@ -123,14 +122,13 @@ namespace ClientesAPI.API.Controllers.v1
             }
         }
 
-
         /// <summary>
         /// Remove um cliente pelo ID.
         /// </summary>
         /// <param name="id">ID do cliente.</param>
         /// <returns>Resultado da operação.</returns>
         [HttpDelete("{id}")]
-        public IActionResult DeleteCliente(Guid id)
+        public async Task<IActionResult> DeleteCliente(Guid id)
         {
             _logger.LogInformation("Recebida requisição DELETE para cliente ID {Id}", id);
 
@@ -138,10 +136,10 @@ namespace ClientesAPI.API.Controllers.v1
             {
                 if (id == Guid.Empty) return BadRequest("ID inválido.");
 
-                var clienteDto = _clienteService.GetById(id);
+                var clienteDto = await _clienteService.GetByIdAsync(id);
                 if (clienteDto == null) return NotFound("Cliente não encontrado.");
 
-                _clienteService.Delete(id);
+                await _clienteService.DeleteAsync(id);
 
                 return NoContent();
             }
