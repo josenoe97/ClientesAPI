@@ -4,10 +4,10 @@ namespace ClientesAPI.Domain.Interface
 {
     public interface IClienteRepository
     {
-        public Task<Cliente> GetById(Guid id);
-        public Task<List<Cliente>> GetAll();
-        public Task<Cliente> Add(Cliente cliente);
-        public Task<Cliente> Update(Cliente cliente);
-        public Task<Cliente> Delete(Guid id);
+        public Task<Cliente> GetByIdAsync(Guid id);
+        public Task<List<Cliente>> GetAllAsync();
+        public Task<Cliente> AddAsync(Cliente cliente);
+        public Task<Cliente> UpdateAsync(Cliente cliente);
+        public Task<Cliente> DeleteAsync(Guid id);
     }
 }

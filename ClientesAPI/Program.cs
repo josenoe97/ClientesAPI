@@ -1,4 +1,6 @@
+using ClientesAPI.Domain.Interface;
 using ClientesAPI.Infrastructure.Data;
+using ClientesAPI.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,6 +14,8 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<ClienteContext>(options =>
     options.UseInMemoryDatabase("ClientesDb"));
+
+builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
 
 var app = builder.Build();
 

@@ -1,38 +1,57 @@
 ﻿using ClientesAPI.Domain.Entities;
 using ClientesAPI.Domain.Interface;
+using ClientesAPI.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace ClientesAPI.Infrastructure.Repositories
 {
     public class ClienteRepository : IClienteRepository
     {
-        public ClienteRepository()
+        private readonly ClienteContext _context;
+
+        public ClienteRepository(ClienteContext context)
         {
-            //dbcontext
+            _context = context;
         }
 
-        public async Task<Cliente> Add(Cliente cliente)
+        public async Task<Cliente> AddAsync(Cliente cliente)
         {
-            throw new NotImplementedException();
+            await _context.Clientes.AddAsync(cliente);
+            await _context.SaveChangesAsync();
+
+            return cliente;
         }
 
-        public async Task<Cliente> Delete(Guid id)
+        public async Task<Cliente> DeleteAsync(Guid id)
         {
-            throw new NotImplementedException();
+            var cliente = await _context.Clientes.FirstOrDefaultAsync(x => x.Id == id);
+
+            if (cliente != null)
+            {
+                _context.Clientes.Remove(cliente);
+                await _context.SaveChangesAsync(); 
+            }
+
+            return cliente;
         }
 
-        public async Task<List<Cliente>> GetAll()
+        public async Task<List<Cliente>> GetAllAsync()
         {
-            throw new NotImplementedException();
+            return await _context.Clientes.ToListAsync();
         }
 
-        public async Task<Cliente> GetById(Guid id)
+        public async Task<Cliente> GetByIdAsync(Guid id)
         {
-            throw new NotImplementedException();
+            var cliente = await _context.Clientes.FirstOrDefaultAsync(x => x.Id == id);
+
+            return cliente;
         }
 
-        public async Task<Cliente> Update(Cliente cliente)
+        public async Task<Cliente> UpdateAsync(Cliente cliente)
         {
-            throw new NotImplementedException();
+            _context.Update(cliente);
+            _context.SaveChanges();
+            return await GetByIdAsync(cliente.Id);
         }
     }
 }
