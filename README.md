@@ -32,4 +32,8 @@ Pacotes Utilizados(Instalados no NuGET):
   - Microsoft.AspNetCore.Mvc
   - Moq
   - FluentAssertions
+
+ API:
+![image](https://github.com/user-attachments/assets/dbed5dc0-90b0-4532-85d8-1eee00297e10)
+
  
