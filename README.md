@@ -1,5 +1,5 @@
 Requisitos:
-  - Visual Studio 2022
+  - Visual Studio 2022 ou VSCode
   - git
     
 Como rodar a aplicação:
