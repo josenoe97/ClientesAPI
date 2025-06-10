@@ -3,7 +3,7 @@ Requisitos:
   - git
     
 Como rodar a aplicação:
-  1° - Aplicar o comando "git clone https://github.com/josenoe97/ClientesAPI.git"
+  1° - Aplicar o comando "git clone https://github.com/josenoe97/ClientesAPI.git" \n
   2° - Acessar o a pasta que deseja compilar (ClientesAPI ou ClientesAPI.Testes)
   3° - Aplicar o comando dotnet run
   4° - Acessar o localhost com a url do swagger (exemplo: https://localhost:7254/swagger/index.html)
