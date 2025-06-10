@@ -5,7 +5,7 @@ namespace ClientesAPI.Application.Services.Interface
 {
     public interface IClienteService
     {
-        IEnumerable<ClienteDTO> GetAll();
+        List<ClienteDTO> GetAll();
         ClienteDTO GetById(Guid id);
         ClienteDTO Create(ClienteDTO dto);
         ClienteDTO Update(Guid id, ClienteDTO dto);

@@ -6,7 +6,6 @@ namespace ClientesAPI.Application.DTOs
     public class ClienteDTO
     {
         [Key]
-        [JsonIgnore]
         public Guid Id { get; set; } = Guid.NewGuid();
 
         [Required(ErrorMessage = "O nome é obrigatório.")]

@@ -1,6 +1,8 @@
 using Asp.Versioning.ApiExplorer;
 using ClientesAPI.API.Configuration;
 using ClientesAPI.Application.Map;
+using ClientesAPI.Application.Services;
+using ClientesAPI.Application.Services.Interface;
 using ClientesAPI.Domain.Interface;
 using ClientesAPI.Infrastructure.Data;
 using ClientesAPI.Infrastructure.Repositories;
@@ -22,6 +24,8 @@ builder.Services.AddDbContext<ClienteContext>(options =>
     options.UseInMemoryDatabase("ClientesDb"));
 
 builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
+
+builder.Services.AddScoped<IClienteService, ClienteService>();
 
 builder.Services.AddApiVersioning()
     .AddMvc()

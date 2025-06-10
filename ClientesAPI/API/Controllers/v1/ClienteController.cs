@@ -1,9 +1,8 @@
 ﻿using Asp.Versioning;
+using ClientesAPI.Application.DTOs;
+using ClientesAPI.Application.Services.Interface;
 using ClientesAPI.Domain.Entities;
-using ClientesAPI.Infrastructure.Data;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace ClientesAPI.API.Controllers.v1
 {
@@ -12,11 +11,11 @@ namespace ClientesAPI.API.Controllers.v1
     [ApiController]
     public class ClienteController : ControllerBase
     {
-        private readonly ClienteContext _context;
+        private readonly IClienteService _clienteService;
 
-        public ClienteController(ClienteContext context)
+        public ClienteController(IClienteService clienteService)
         {
-            _context = context;
+            _clienteService = clienteService;
         }
 
         /// <summary>
@@ -24,9 +23,19 @@ namespace ClientesAPI.API.Controllers.v1
         /// </summary>
         /// <returns>Lista de clientes.</returns>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Cliente>>> GetClientes()
+        public ActionResult<IEnumerable<ClienteDTO>> GetClientes()
         {
-            return await _context.Clientes.ToListAsync();
+            try
+            {
+                var clientes = _clienteService.GetAll();
+                if (!clientes.Any()) return NoContent(); // Retorna 204 se não houver clientes
+
+                return Ok(clientes);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Erro interno: {ex.Message}");
+            }
         }
 
         /// <summary>
@@ -35,24 +44,42 @@ namespace ClientesAPI.API.Controllers.v1
         /// <param name="id">ID do cliente.</param>
         /// <returns>Cliente encontrado.</returns>
         [HttpGet("{id}")]
-        public async Task<ActionResult<Cliente>> GetCliente(Guid id)
+        public ActionResult<ClienteDTO> GetCliente(Guid id)
         {
-            var cliente = await _context.Clientes.FindAsync(id);
-            if (cliente == null) return NotFound();
-            return cliente;
+            try
+            {
+                if (id == Guid.Empty) return BadRequest("ID inválido.");
+
+                var clienteDto = _clienteService.GetById(id);
+                if (clienteDto == null) return NotFound("Cliente não encontrado.");
+
+                return Ok(clienteDto);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Erro interno: {ex.Message}");
+            }
         }
 
         /// <summary>
         /// Cria um novo cliente.
         /// </summary>
-        /// <param name="cliente">Objeto cliente.</param>
+        /// <param name="clienteDto">Objeto cliente.</param>
         /// <returns>Cliente criado.</returns>
         [HttpPost]
-        public async Task<ActionResult<Cliente>> CreateCliente(Cliente cliente)
+        public ActionResult<ClienteDTO> CreateCliente([FromBody] ClienteDTO clienteDto)
         {
-            _context.Clientes.Add(cliente);
-            await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetCliente), new { id = cliente.Id }, cliente);
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(ModelState);
+
+                _clienteService.Create(clienteDto);
+                return CreatedAtAction(nameof(GetCliente), new { id = clienteDto.Id }, clienteDto);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Erro interno: {ex.Message}");
+            }
         }
 
         /// <summary>
@@ -62,20 +89,31 @@ namespace ClientesAPI.API.Controllers.v1
         /// <param name="cliente">Dados atualizados do cliente.</param>
         /// <returns>Resultado da operação.</returns>
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateCliente(Guid id, Cliente cliente)
+        public IActionResult UpdateCliente(Guid id, [FromBody] ClienteDTO clienteDto)
         {
-            if (id != cliente.Id) return BadRequest();
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            var existente = await _context.Clientes.FindAsync(id);
-            if (existente == null) return NotFound();
+                // Busca o cliente original no banco
+                var clienteExistente = _clienteService.GetById(id);
+                if (clienteExistente == null) return NotFound("Cliente não encontrado.");
 
-            existente.Nome = cliente.Nome;
-            existente.Email = cliente.Email;
-            existente.Telefone = cliente.Telefone;
+                // Verifica se o ID do objeto foi alterado
+                if (clienteExistente.Id != clienteDto.Id)
+                {
+                    return BadRequest("O ID do cliente não pode ser alterado.");
+                }
 
-            await _context.SaveChangesAsync();
-            return NoContent();
+                _clienteService.Update(id, clienteDto);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Erro interno: {ex.Message}");
+            }
         }
+
 
         /// <summary>
         /// Remove um cliente pelo ID.
@@ -83,14 +121,23 @@ namespace ClientesAPI.API.Controllers.v1
         /// <param name="id">ID do cliente.</param>
         /// <returns>Resultado da operação.</returns>
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCliente(Guid id)
+        public IActionResult DeleteCliente(Guid id)
         {
-            var cliente = await _context.Clientes.FindAsync(id);
-            if (cliente == null) return NotFound();
+            try
+            {
+                if (id == Guid.Empty) return BadRequest("ID inválido.");
 
-            _context.Clientes.Remove(cliente);
-            await _context.SaveChangesAsync();
-            return NoContent();
+                var clienteDto = _clienteService.GetById(id);
+                if (clienteDto == null) return NotFound("Cliente não encontrado.");
+
+                _clienteService.Delete(id);
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Erro interno: {ex.Message}");
+            }
         }
     }
 }

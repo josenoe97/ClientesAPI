@@ -37,11 +37,11 @@ namespace ClientesAPI.Application.Services
             return _mapper.Map<ClienteDTO>(cliente);
         }
 
-        public IEnumerable<ClienteDTO> GetAll()
+        public List<ClienteDTO> GetAll()
         {
             var clientesDTO = _clienteRepository.GetAll().Select(x => _mapper.Map<ClienteDTO>(x));
 
-            return clientesDTO;
+            return clientesDTO.ToList();
         }
 
         public ClienteDTO GetById(Guid id)

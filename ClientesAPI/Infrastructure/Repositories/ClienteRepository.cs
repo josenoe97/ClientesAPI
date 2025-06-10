@@ -37,15 +37,20 @@ namespace ClientesAPI.Infrastructure.Repositories
 
         public Cliente GetById(Guid id)
         {
-            var cliente = _context.Clientes.FirstOrDefault(x => x.Id == id);
+            var cliente = _context.Clientes.Find(id);
 
             return cliente;
         }
 
         public Cliente Update(Cliente cliente)
         {
-            _context.Update(cliente);
-            _context.SaveChanges();
+            var existCliente = GetById(cliente.Id);
+            if (existCliente != null)
+            {
+                _context.Entry(existCliente).CurrentValues.SetValues(cliente);
+                _context.SaveChanges();
+            }
+
             return GetById(cliente.Id);
         }
     }
